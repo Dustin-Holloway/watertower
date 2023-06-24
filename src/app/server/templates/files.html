@@ -1,0 +1,9 @@
+<div>
+  {% for file_name in file_names %}
+  <div>
+    <a href="{{ url_for('static', filename='./uploads' ~ file_name) }}"
+      >{{ file_name }}</a
+    >
+  </div>
+  {% endfor %}
+</div>
