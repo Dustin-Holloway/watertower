@@ -138,16 +138,16 @@ export default function ListingModal({ displayForm, setDisplayForm }) {
                       </p>
                     </div>
                   </div>
+                  <button
+                    className="btn w-full flex rounded-lg mt-2 p-2 bg-blue-600 text-white btn-primary"
+                    onClick={handleSubmitForm}
+                  >
+                    Submit
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-          <button
-            className="btn w-full rounded-lg p-2 bg-blue-600 text-white btn-primary"
-            onClick={handleSubmitForm}
-          >
-            Submit
-          </button>
         </form>
       </div>
     </div>

@@ -12,6 +12,7 @@ import DocsTable from "./Documents";
 import { GiWaterTower } from "react-icons/gi";
 import ContactCard from "./ContactCard";
 import Example from "./DashComps";
+import Cal from "./Calender";
 
 export default function Dashboard({
   isAuthenticated,
@@ -75,7 +76,7 @@ export default function Dashboard({
     })
       .then((r) => r.json())
       .then((data) => setListings(data));
-  }, []);
+  }, [setListings]);
 
   function handleLogOut(e) {
     e.preventDefault();
@@ -99,14 +100,6 @@ export default function Dashboard({
 
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-gray-100">
-        <body class="h-full">
-        ```
-      */}
       <div className="min-h-full">
         <Disclosure as="nav" className="bg-gray-800">
           {({ open }) => (
@@ -115,11 +108,6 @@ export default function Dashboard({
                 <div className="flex h-16 items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex">
-                      {/* <img
-                        className="h-8 w-8"
-                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                        alt="Your Company"
-                      /> */}
                       <p className="h-full text-2xl w=full  text-white">
                         <GiWaterTower />
                       </p>
@@ -160,11 +148,19 @@ export default function Dashboard({
                         <div>
                           <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                             <span className="sr-only">Open user menu</span>
-                            <img
-                              className="h-8 w-8 rounded-full"
-                              src={user.image}
-                              alt=""
-                            />
+                            {user.image ? (
+                              <img
+                                className="h-8 w-8 rounded-full"
+                                src={user.image}
+                                alt=""
+                              />
+                            ) : (
+                              <img
+                                className="h-8 w-8 rounded-full"
+                                src="./5fd0bad5-b765-4596-a4c7-eb5e0b37dddc.jpeg"
+                                alt=""
+                              />
+                            )}
                           </Menu.Button>
                         </div>
                         <Transition
@@ -305,6 +301,7 @@ export default function Dashboard({
         </header>
         <main>
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+            {currentComponent === "Events" && <Cal />}
             {currentComponent === "Dashboard" && <Example />}
             {currentComponent === "Message Board" && <MessageBoard />}
             {currentComponent === "Listings" && (
@@ -313,6 +310,7 @@ export default function Dashboard({
                 setDisplayForm={setDisplayForm}
                 isAuthenticated={isAuthenticated}
                 listings={listings}
+                setListings={setListings}
               />
             )}
             {currentComponent === "Docs" && <DocsTable documents={documents} />}

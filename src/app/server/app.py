@@ -15,7 +15,6 @@ from flask_restful import Resource
 # import ipdb
 
 
-
 class NextAuthLogin(Resource):
     def post(self):
         try:
@@ -167,7 +166,7 @@ class Reply(Resource):
 
         except Exception:
             return make_response(jsonify({}), 400)
-        
+
 
 class Messages(Resource):
     def get(self):
@@ -177,8 +176,15 @@ class Messages(Resource):
             return make_response(
                 jsonify(
                     [
-                        message.to_dict(only=("id", "content", "user_id", "created_at", "replies", "user" )
-                            
+                        message.to_dict(
+                            only=(
+                                "id",
+                                "content",
+                                "user_id",
+                                "created_at",
+                                "replies",
+                                "user",
+                            )
                         )
                         for message in messages
                     ]
@@ -186,19 +192,17 @@ class Messages(Resource):
                 200,
             )
         return make_response({"error": "no comments found"}, 404)
-    
+
     def post(self):
         request_json = request.get_json()
 
         user_id = session.get("user_id")
         user = User.query.filter_by(id=user_id).first()
 
-
         try:
             new_Message = Message(
                 content=request_json.get("content"),
                 user=user,
-
             )
 
             db.session.add(new_Message)
@@ -330,7 +334,7 @@ class ListingsById(Resource):
             db.session.add(updated_comment)
             db.session.commit()
             return make_response(
-                jsonify(updated_comment.to_dict(only=("id",))),
+                jsonify(updated_comment.to_dict()),
                 201,
             )
 
@@ -346,7 +350,18 @@ class Listings(Resource):
                 jsonify(
                     [
                         listing.to_dict(
-                            only=("image", "title", "content", "id", "created_at", "user_id", "user.name", "user.email", "user.unit", "user.id")
+                            only=(
+                                "image",
+                                "title",
+                                "content",
+                                "id",
+                                "created_at",
+                                "user_id",
+                                "user.name",
+                                "user.email",
+                                "user.unit",
+                                "user.id",
+                            )
                         )
                         for listing in all_listings
                     ]
@@ -354,7 +369,6 @@ class Listings(Resource):
                 200,
             )
         return make_response({"error": "no comments found"}, 404)
-    
 
     def post(self):
         request_json = request.get_json()
@@ -374,7 +388,7 @@ class Listings(Resource):
 
         except Exception:
             return make_response(jsonify({}), 400)
-    
+
 
 class Documents(Resource):
     def get(self):
@@ -382,14 +396,11 @@ class Documents(Resource):
 
         if docs:
             return make_response(
-                jsonify([doc.to_dict()
-                        for doc in docs]
-                    
-                ),
+                jsonify([doc.to_dict() for doc in docs]),
                 200,
             )
         return make_response({"error": "no comments found"}, 404)
-    
+
 
 class Files(Resource):
     def get(self):
@@ -400,21 +411,20 @@ class Files(Resource):
         # file_names = [file_name.strip() for file_name in response.split('\n') if file_name.strip()]
 
         return render_template("files.html", file_names=file_names)
-    
-
 
 
 class DocumentsById(Resource):
-     def get(self, id):
+    def get(self, id):
         docToGet = Document.query.get(id)
 
         if docToGet:
-            return send_file(docToGet.file_path, as_attachment=True, mimetype='application/octet-stream')
+            return send_file(
+                docToGet.file_path,
+                as_attachment=True,
+                mimetype="application/octet-stream",
+            )
         return make_response({"error": "document not found"}, 404)
-     
 
-
-     
 
 api.add_resource(Logout, "/api/logout")
 api.add_resource(CheckSession, "/api/check_session")
