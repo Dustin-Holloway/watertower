@@ -19,6 +19,7 @@ export default function CardContainer({
   sortListings,
 }) {
   const { user } = useContext(appContext);
+  console.log(user);
   const [showListing, setShowListing] = useState({
     show: false,
     listing: null,
@@ -83,6 +84,21 @@ export default function CardContainer({
     });
   }
 
+  function addToFavorites(listing) {
+    fetch("/api/add_favorite", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        listing_id: listing.id,
+      }),
+    })
+      .then((r) => r.json())
+      .then((reply) => console.log(reply));
+  }
+
   function handleSubmitEdit(e) {
     e.preventDefault();
 
@@ -127,6 +143,7 @@ export default function CardContainer({
     })
       .then((r) => r.json())
       .then((reply) => console.log(reply));
+    setListingReply({ content: "" });
   }
 
   function handleClick(selectedListing) {
@@ -296,6 +313,12 @@ export default function CardContainer({
                 onClick={(e) => setShowListing({ show: false, listing: null })}
               >
                 Close
+              </button>
+              <button
+                onClick={(e) => addToFavorites(showListing.listing)}
+                className="bg-red-400 p-1 ml-2 text-white rounded-md"
+              >
+                Favorite
               </button>
               {showListing.listing.user_id === user?.id && (
                 <div>

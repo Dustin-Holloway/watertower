@@ -43,7 +43,7 @@ export default function RegistrationForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newUser),
+        body: JSON.stringify(userObject), // Fix: Use userObject instead of newUser
       });
 
       if (!response.ok) {
@@ -60,7 +60,6 @@ export default function RegistrationForm() {
       setLoginError(error.message);
     }
   };
-
   //   e.preventDefault();
 
   //   try {

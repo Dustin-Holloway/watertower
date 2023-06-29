@@ -81,8 +81,11 @@ export default function Example() {
           </button>
         </h3>
       </div>
-      <div className="my-5 mx-auto py-5 w-full">
+      <div className="my-5 mx-auto py-5 w-full border">
+        <div></div>
+
         <ul role="list" className="divide-y m-auto w-1/2 divide-gray-100">
+          <h1>My listings</h1>
           {userListings.map((listing) => (
             <li key={listing.id} className="flex justify-between gap-x-6 py-5">
               <div className="flex gap-x-4">
