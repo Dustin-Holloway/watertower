@@ -2,7 +2,8 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { appContext } from "./AppContext";
 
 export default function RegistrationForm() {
   const router = useRouter();
@@ -16,36 +17,82 @@ export default function RegistrationForm() {
   };
 
   const [newUser, setNewUser] = useState(defaultValues);
+  const { setUser } = useContext(appContext);
+  const [loginError, setLoginError] = useState(null);
 
-  function handleLogin(e) {
+  // const handleLogin = async (e) => {
+  //   const userObject = {
+  //     name: newUser.name,
+  //     email: newUser.email,
+  //     unit: newUser.unit,
+  //     password: newUser.password,
+  //   };
+
+  const handleLogin = async (e) => {
     const userObject = {
       name: newUser.name,
       email: newUser.email,
       unit: newUser.unit,
       password: newUser.password,
     };
-
     e.preventDefault();
-    fetch("/api/new_user", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newUser),
-    })
-      .then((res) => res.json())
-      .then((date) => console.log(date));
 
-    setNewUser(defaultValues);
-    router.push("/dashboard");
-  }
+    try {
+      const response = await fetch("/api/new_user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newUser),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error);
+      }
+
+      const userData = await response.json();
+      console.log(userData);
+      setUser(userData);
+
+      router.push("/dashboard");
+    } catch (error) {
+      setLoginError(error.message);
+    }
+  };
+
+  //   e.preventDefault();
+
+  //   try {
+  //     fetch("/api/new_user", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(newUser),
+  //     });
+
+  //     if (!response.ok) {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.error);
+  //     }
+
+  //     const userData = await response.json();
+  //     console.log(userData);
+  //     setUser(userData);
+
+  //     router.push("/dashboard");
+  //   } catch (error) {
+  //     setLoginError(error.message);
+  //   }
+  // };
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div class="container py-5 rounded justify-center m-auto flex center w-1/4 bg-slate-200">
+      <div className="container py-5 rounded justify-center m-auto flex center w-1/4 bg-slate-200">
         <form
           onSubmit={handleLogin}
-          class="bg-blue  flex-1 text-center w-1/3 px-5 py-4 text-black mx-auto rounded"
+          className="bg-blue  flex-1 text-center w-1/3 px-5 py-4 text-black mx-auto rounded"
         >
           <input
             value={newUser.name}
@@ -55,7 +102,7 @@ export default function RegistrationForm() {
             name="name"
             type="text"
             placeholder="name"
-            class="block w-full mx-auto text-sm py-2 px-3 rounded my-3 "
+            className="block w-full mx-auto text-sm py-2 px-3 rounded my-3 "
           />
           <input
             value={newUser.email}
@@ -65,7 +112,7 @@ export default function RegistrationForm() {
             name="email"
             type="text"
             placeholder="email"
-            class="block w-full mx-auto text-sm py-2 px-3 rounded my-3"
+            className="block w-full mx-auto text-sm py-2 px-3 rounded my-3"
           />
           <input
             value={newUser.unit}
@@ -75,7 +122,7 @@ export default function RegistrationForm() {
             name="unit"
             type="integer"
             placeholder="unit #"
-            class="block w-full mx-auto text-sm py-2 px-3 rounded my-3 "
+            className="block w-full mx-auto text-sm py-2 px-3 rounded my-3 "
           />
           <input
             value={newUser.password}
@@ -85,7 +132,7 @@ export default function RegistrationForm() {
             name="password"
             type="password"
             placeholder="password"
-            class="block w-full mx-auto text-sm py-2 px-3 rounded my-3"
+            className="block w-full mx-auto text-sm py-2 px-3 rounded my-3"
           />
 
           <input
@@ -96,9 +143,9 @@ export default function RegistrationForm() {
             type="password"
             name="confirmPassword"
             placeholder="Confirm Password"
-            class="block w-full mx-auto text-sm py-2 px-3 rounded my-3"
+            className="block w-full mx-auto text-sm py-2 px-3 rounded my-3"
           />
-          <button class="bg-blue text-white font-bold py-2 px-4 rounded border block mx-auto w-full">
+          <button className="bg-blue text-white font-bold py-2 px-4 rounded border block mx-auto w-full">
             Register
           </button>
         </form>

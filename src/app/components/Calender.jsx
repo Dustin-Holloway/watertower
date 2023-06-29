@@ -1,3 +1,5 @@
+"use client";
+
 import { Fragment } from "react";
 import {
   CalendarIcon,
@@ -10,6 +12,8 @@ import {
 import { Menu, Transition } from "@headlessui/react";
 import { useState } from "react";
 import { format } from "date-fns";
+import { appContext } from "./AppContext";
+import { useContext } from "react";
 
 const meetings = [
   {
@@ -68,6 +72,8 @@ export default function Cal() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
+  const { user, setUser } = useContext(appContext);
+
   const handleMonthChange = (increment) => {
     if (increment === -1 && currentMonth === 0) {
       setCurrentMonth(11);
@@ -114,7 +120,7 @@ export default function Cal() {
   }
 
   return (
-    <div className="mx-150">
+    <div className="w-3/4 m-auto center">
       <h2 className="text-base font-semibold  leading-6 text-gray-900">
         Upcoming meetings
       </h2>
@@ -196,12 +202,14 @@ export default function Cal() {
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            className="mt-8 w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            Add event
-          </button>
+          {user.is_admin && (
+            <button
+              type="button"
+              className="mt-8 w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Add event
+            </button>
+          )}
         </div>
 
         <ol className="mt-4 divide-y divide-gray-100 text-sm leading-6 lg:col-span-7 xl:col-span-8">

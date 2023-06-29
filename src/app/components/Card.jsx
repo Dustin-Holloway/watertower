@@ -12,6 +12,8 @@ export default function Card({
 }) {
   const { user } = useContext(appContext);
 
+  const imageUrl = `./${listing.image}`;
+
   return (
     <div
       className="max-w-sm w-full rounded overflow-hidden shadow-lg"
@@ -20,7 +22,7 @@ export default function Card({
       {listing.image ? (
         <img
           className="w-full h-32 object-cover"
-          src={listing.image}
+          src={imageUrl}
           alt={listing.title}
         />
       ) : (

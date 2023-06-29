@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { AppContextProvider } from "./components/AppContext";
+import Dashboard from "./components/Dashboard";
 
 const inter = Inter({ subsets: ["latin"] });
 

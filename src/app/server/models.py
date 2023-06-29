@@ -20,6 +20,7 @@ class User(db.Model, SerializerMixin):
     name = db.Column(db.String)
     image = db.Column(db.String)
     unit = db.Column(db.Integer)
+    is_admin = db.Column(db.Boolean, default=False)
 
     listings = db.relationship("Listing", back_populates="user")
     comments = db.relationship("Comment", back_populates="user")
@@ -27,6 +28,9 @@ class User(db.Model, SerializerMixin):
 
     favorited_listings = association_proxy("favorites", "listing")
     messages = db.relationship("Message", back_populates="user")
+    favorites = db.relationship(
+        "Favorite", secondary=user_favorite_association, back_populates="user"
+    )
 
     serialize_rules = (
         "-listings.user",
@@ -57,13 +61,20 @@ class User(db.Model, SerializerMixin):
         return bcrypt.check_password_hash(self._password_hash, password.encode("utf-8"))
 
 
+user_favorite_association = db.Table(
+    "user_favorite_association",
+    db.Column("user_id", db.Integer, db.ForeignKey("users.id")),
+    db.Column("listing_id", db.Integer, db.ForeignKey("listings.id")),
+)
+
+
 class Listing(db.Model, SerializerMixin):
     __tablename__ = "listings"
 
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
-    image = db.Column(db.String)
+    image = db.Column(db.String(255))
     title = db.Column(db.String)
     content = db.Column(db.String)
     type = db.Column(db.String)
@@ -71,11 +82,29 @@ class Listing(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, ForeignKey("users.id"))
     user = db.relationship("User", back_populates="listings")
     comments = db.relationship("Comment", back_populates="listing")
+    favorites = db.relationship(
+        "Favorite", secondary=user_favorite_association, back_populates="listings"
+    )
 
     serialize_rules = (
         # "-user",
-        "-comments",
+        # "-comments",
     )
+
+    def save_image(self, uploaded_file):
+        # Generate a secure filename
+        filename = secure_filename(uploaded_file.filename)
+
+        self.image = filename
+
+        # Create the file path where the image will be stored
+        file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+
+        # Save the image to the file system
+        uploaded_file.save(file_path)
+
+        # Set the image attribute to the file path
+        # self.image = file_path
 
 
 class Comment(db.Model, SerializerMixin):
@@ -93,7 +122,7 @@ class Comment(db.Model, SerializerMixin):
     listing = db.relationship("Listing", back_populates="comments")
     favorite = db.relationship("Favorite", back_populates="comment")
 
-    serialize_rules = ("-user", "-listings")
+    serialize_rules = ("-user", "-listing", "-favorite")
 
 
 class Favorite(db.Model, SerializerMixin):
@@ -101,10 +130,10 @@ class Favorite(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey("users.id"))
-    comment_id = db.Column(db.Integer, ForeignKey("comments.id"))
+    listing_id = db.Column(db.Integer, ForeignKey("listings.id"))
 
     user = db.relationship("User", back_populates="favorites")
-    comment = db.relationship("Comment", back_populates="favorite")
+    listing = db.relationship("Listing", back_populates="favorites")
 
 
 class Message(db.Model, SerializerMixin):
@@ -120,7 +149,7 @@ class Message(db.Model, SerializerMixin):
     user = db.relationship("User", back_populates="messages")
     replies = db.relationship("MessageReply", back_populates="message")
 
-    # serialize_rules = ("user")
+    # serialize_rules = "user"
 
 
 class ListingReply(db.Model, SerializerMixin):
@@ -136,6 +165,8 @@ class ListingReply(db.Model, SerializerMixin):
     user = db.relationship("User")
     listing = db.relationship("Listing")
 
+    # serialize_rules = ("user")
+
 
 class MessageReply(db.Model, SerializerMixin):
     __tablename__ = "message_replies"
@@ -150,7 +181,7 @@ class MessageReply(db.Model, SerializerMixin):
     user = db.relationship("User")
     message = db.relationship("Message")
 
-    serialize_rules = ("-message","-message_id", "-user_id")
+    serialize_rules = ("-message", "-message_id", "-user_id")
 
 
 class Notification(db.Model, SerializerMixin):
@@ -179,17 +210,16 @@ class Document(db.Model, SerializerMixin):
 
     data = db.Column(db.LargeBinary)  # Assuming you want to store the file data
 
-
     def save_pdf(self, uploaded_file):
         # Generate a secure filename
         filename = secure_filename(uploaded_file.filename)
-        
+
         # Create the file path where the file will be stored
-        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-        
+        file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+
         # Save the file to the file system
         uploaded_file.save(file_path)
-        
+
         # Set the model attributes
         self.filename = filename
         self.file_path = file_path

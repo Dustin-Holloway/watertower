@@ -16,6 +16,7 @@ export default function CardContainer({
   displayForm,
   setDisplayForm,
   setListings,
+  sortListings,
 }) {
   const { user } = useContext(appContext);
   const [showListing, setShowListing] = useState({
@@ -36,6 +37,21 @@ export default function CardContainer({
 
   const [editListing, setEditListing] = useState(false);
 
+  function handleImageChange(e) {
+    const file = e.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        // Set the selected image in the component's state
+        setEditFormValues({ ...editFromValues, image: file });
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+
   function handleEditListing(listing) {
     setShowListing({
       show: false,
@@ -51,18 +67,40 @@ export default function CardContainer({
     });
     setEditListing(true);
   }
+  function handleDelete(id) {
+    fetch(`/api/listings/${id}`, {
+      method: "DELETE",
+    }).then((r) => {
+      if (r.ok) {
+        setListings((listings) =>
+          listings.filter((listing) => listing.id !== id)
+        );
+      }
+    });
+    setShowListing({
+      show: false,
+      listing: null,
+    });
+  }
 
   function handleSubmitEdit(e) {
     e.preventDefault();
+
+    const { content, title, type, image, id } = editFromValues;
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("content", content);
+    formDataToSend.append("title", title);
+    formDataToSend.append("type", type);
+    formDataToSend.append("image", image);
+
     fetch(`/api/listings/${editFromValues.id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(editFromValues),
+      body: formDataToSend,
     })
       .then((r) => r.json())
       .then((updatedListing) => {
+        console.log(updatedListing);
         const updatedListings = listings.map((listing) => {
           if (listing.id === updatedListing.id) {
             return updatedListing;
@@ -70,22 +108,27 @@ export default function CardContainer({
           return listing;
         });
         setListings(updatedListings);
-      })
-      .catch((error) => {
-        console.log("Error updating listing:", error);
       });
 
     setEditListing(false);
   }
 
-  function handleOnClick(event) {
-    event.preventDefault();
-    setListingReply({ content: "" });
-    setShowListing({
-      show: false,
-      listing: null,
-    });
+  function handleOnClick(listing) {
+    fetch(`/api/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content: listingReply.content,
+        listing_id: listing.id,
+        user_id: user.id,
+      }),
+    })
+      .then((r) => r.json())
+      .then((reply) => console.log(reply));
   }
+
   function handleClick(selectedListing) {
     setShowListing({
       show: true,
@@ -94,7 +137,7 @@ export default function CardContainer({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 justify-items-center">
+    <div className="grid w-3/4 m-auto grid-cols-2 gap-4 justify-items-center">
       {listings.map((listing) => (
         <Card
           className="flex "
@@ -107,8 +150,12 @@ export default function CardContainer({
       ))}
       {displayForm && (
         <ListingModal
+          key={listings.id}
+          listings={listings}
+          setListings={setListings}
           setDisplayForm={setDisplayForm}
           displayForm={displayForm}
+          sortListings={sortListings}
         />
       )}
 
@@ -118,7 +165,7 @@ export default function CardContainer({
         <div className="fixed w-full rounded-lg inset-5 z-50 flex items-center justify-center">
           <div className="fixed w-full rouned-lg inset-0 bg-black opacity-50"></div>
           <div className="bg-white rounded-lg w-1/2 h-full z-10 p-2">
-            <form className="h-full">
+            <form onSubmit={(e) => handleSubmitEdit(e)} className="h-full">
               <div className=" p-3">
                 <div className="border-b border-gray-900/10 pb-5">
                   <div className="mt-5 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-6">
@@ -214,9 +261,10 @@ export default function CardContainer({
                                 name="file-upload"
                                 type="file"
                                 className="sr-only"
+                                onChange={handleImageChange}
                               />
                             </label>
-                            <p className="pl-1">or drag and drop</p>
+                            {/* <p className="pl-1">or drag and drop</p> */}
                           </div>
                           <p className="text-xs leading-5 text-gray-600">
                             PNG, JPG, GIF up to 10MB
@@ -228,10 +276,7 @@ export default function CardContainer({
                 </div>
               </div>
               <button
-                type="button"
-                onClick={(e) => {
-                  handleSubmitEdit(e);
-                }}
+                type="submit"
                 className="btn w-full h-25 m-auto rounded-1/2 bg-blue-600 text-white btn-primary"
               >
                 Submit
@@ -245,20 +290,28 @@ export default function CardContainer({
         <div className="fixed w-full rounded-lg inset-5 z-50 flex items-center justify-center">
           <div className="fixed w-full rouned-lg inset-0 bg-black opacity-50"></div>
           <div className="bg-white rounded-lg w-1/2 h-full z-10 p-2">
-            <div className="flex justify-between w-full items-center mb-4">
+            <div className="flex justify-between w-full items-center mb-2">
               <button
-                className="btn rounded-md bg-blue-500 hover:bg-blue-600 text-white font-"
+                className=" rounded-md  p-1 bg-blue-500 hover:bg-blue-600 text-white font-"
                 onClick={(e) => setShowListing({ show: false, listing: null })}
               >
                 Close
               </button>
               {showListing.listing.user_id === user?.id && (
-                <button
-                  onClick={() => handleEditListing(showListing.listing)}
-                  className="btn rounded-md bg-blue-500 hover:bg-blue-600 text-white font- right"
-                >
-                  Edit
-                </button>
+                <div>
+                  <button
+                    onClick={() => handleEditListing(showListing.listing)}
+                    className="p-1 rounded-md bg-blue-500 hover:bg-blue-600 text-white font- right"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(showListing.listing.id)}
+                    className="bg-red-400 p-1 ml-2 text-white rounded-md"
+                  >
+                    Delete
+                  </button>
+                </div>
               )}
             </div>
             <div className=" flex-col h-1/2 w-full p-5 overflow-hidden">
@@ -304,7 +357,7 @@ export default function CardContainer({
                 ></textarea>
                 <div className="flex-1">
                   <button
-                    onClick={handleOnClick}
+                    onClick={(e) => handleOnClick(showListing.listing)}
                     className="btn w-full bg-blue-200 p-1 rounded-lg "
                   >
                     Submit

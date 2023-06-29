@@ -12,8 +12,13 @@ export default function Profile() {
   return (
     <div className="w-full border mx-auto flex-row">
       <div className="border flex-1 bg-gray-100 text-right px-25">
-        <h3 onClick={(e) => router.push("/dashboard")} className="p-5">
-          exit
+        <h3 className="p-5 bg-gray-800">
+          <button
+            className="text-white p-1 bg-gray-500 rounded-md"
+            onClick={(e) => router.push("/dashboard")}
+          >
+            Return
+          </button>
         </h3>
       </div>
       <div className="justify-center w-3/4 mx-20 py-10">

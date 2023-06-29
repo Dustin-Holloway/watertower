@@ -13,6 +13,27 @@ import { GiWaterTower } from "react-icons/gi";
 import ContactCard from "./ContactCard";
 import Example from "./DashComps";
 import Cal from "./Calender";
+import { Alert, AlertDescription, AlertTitle } from "./alert";
+import { RocketIcon } from "@radix-ui/react-icons";
+import { Button } from "./Button";
+import {
+  Card2,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./Cards";
+
+import { Input } from "./Input";
+import { Label } from "./Label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./Selectors";
 
 export default function Dashboard({
   isAuthenticated,
@@ -45,8 +66,8 @@ export default function Dashboard({
   };
 
   const userNavigation = [
-    { name: "Your Profile", href: "#" },
-    { name: "Settings", href: "#" },
+    { name: "Profile", href: "#" },
+    { name: "Mail", href: "#" },
     { name: "Sign out", href: "#" },
   ];
 
@@ -67,6 +88,19 @@ export default function Dashboard({
     });
   }
 
+  const sortListings = (data) => {
+    const sortedListings = data.sort((a, b) => {
+      if (a.created_at > b.created_at) {
+        return -1; // a should come before b
+      } else if (a.created_by > b.created_by) {
+        return 1; // a should come after b
+      } else {
+        return 0; // a and b have the same created_by, maintain their order
+      }
+    });
+    setListings(sortedListings);
+  };
+
   useEffect(() => {
     fetch("/api/listings", {
       method: "GET",
@@ -75,7 +109,7 @@ export default function Dashboard({
       },
     })
       .then((r) => r.json())
-      .then((data) => setListings(data));
+      .then((data) => sortListings(data));
   }, [setListings]);
 
   function handleLogOut(e) {
@@ -189,9 +223,13 @@ export default function Dashboard({
                                         // Perform sign out functionality
                                         // signOut({ callbackUrl: "/" });
                                       }
-                                      if (item.name === "Your Profile") {
+                                      if (item.name === "Profile") {
                                         // Handle other menu item actions or functionality
                                         router.push("/profile");
+                                      }
+                                      if (item.name === "Mail") {
+                                        // Handle other menu item actions or functionality
+                                        router.push("/listings");
                                       }
                                     }}
                                   >
@@ -301,8 +339,61 @@ export default function Dashboard({
         </header>
         <main>
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+            {/* <Alert>
+              <RocketIcon className="h-4 text-black w-4" />
+              <AlertTitle className="text-black">Heads up!</AlertTitle>
+              <AlertDescription className="text-black">
+                You can add components and dependencies to your app using the
+                cli.
+              </AlertDescription>
+            </Alert> */}
+            <div className="text-black flex">
+              {/* <Card2 className="w-[350px]">
+                <CardHeader>
+                  <CardTitle>Create project</CardTitle>
+                  <CardDescription>
+                    Deploy your new project in one-click.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form>
+                    <div className="grid w-full items-center gap-4">
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="name">Name</Label>
+                        <Input id="name" placeholder="Name of your project" />
+                      </div>
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="name">Framework</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                            <SelectContent position="popper">
+                              <SelectItem value="next">Next.js</SelectItem>
+                              <SelectItem value="sveltekit">
+                                SvelteKit
+                              </SelectItem>
+                              <SelectItem value="astro">Astro</SelectItem>
+                              <SelectItem value="nuxt">Dope Dude</SelectItem>
+                            </SelectContent>
+                          </SelectTrigger>
+                        </Select>
+                      </div>
+                    </div>
+                  </form>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Button variant="outline">Cancel</Button>
+                  <Button>Deploy</Button>
+                </CardFooter>
+              </Card2> */}
+            </div>
+
             {currentComponent === "Events" && <Cal />}
-            {currentComponent === "Dashboard" && <Example />}
+            {currentComponent === "Dashboard" && (
+              <div className=" grid gap-10 grid-cols-2">
+                <Example />
+              </div>
+            )}
             {currentComponent === "Message Board" && <MessageBoard />}
             {currentComponent === "Listings" && (
               <CardContainer
@@ -311,6 +402,7 @@ export default function Dashboard({
                 isAuthenticated={isAuthenticated}
                 listings={listings}
                 setListings={setListings}
+                sortListings={sortListings}
               />
             )}
             {currentComponent === "Docs" && <DocsTable documents={documents} />}

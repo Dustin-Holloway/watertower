@@ -49,6 +49,7 @@ export default function LoginForm() {
       }
 
       const userData = await response.json();
+      console.log(userData);
       setUser(userData);
 
       router.push("/dashboard");
