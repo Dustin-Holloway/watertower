@@ -4,7 +4,16 @@
 from flask import request, session, make_response, jsonify, send_file
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
-from models import User, Listing, Comment, MessageReply, Message, Document, ListingReply
+from models import (
+    User,
+    Listing,
+    Comment,
+    MessageReply,
+    Message,
+    Document,
+    ListingReply,
+    Favorite,
+)
 from config import api, db, app
 import ipdb
 from flask import render_template
@@ -276,6 +285,27 @@ class Messages(Resource):
 
         except Exception:
             return make_response(jsonify({}), 400)
+
+
+class Favorites(Resource):
+    def post(self):
+        request_json = request.get_json()
+        # ipdb.set_trace()
+        try:
+            new_favorite = Favorite(
+                user_id=request_json.get("user_id"),
+                listing_id=request_json.get("listing_id"),
+            )
+
+            db.session.add(new_favorite)
+            db.session.commit()
+
+            return make_response(
+                jsonify(new_favorite.to_dict(only=("user_id", "listing_id"))), 201
+            )
+
+        except Exception:
+            return make_response(jsonify({"error": "not Good"}), 400)
 
 
 class UserComments(Resource):
@@ -562,6 +592,7 @@ api.add_resource(ListingsById, "/api/listings/<int:id>")
 api.add_resource(Messages, "/api/messages")
 api.add_resource(ListingReplies, "/api/listing_reply")
 api.add_resource(EditUser, "/api/edit_user/<int:id>")
+api.add_resource(Favorites, "/api/add_favorite")
 
 
 if __name__ == "__main__":

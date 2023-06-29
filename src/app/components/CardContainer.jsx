@@ -27,6 +27,8 @@ export default function CardContainer({
     content: "",
   });
 
+  const [favorites, setFavorites] = useState([]);
+
   const [editFromValues, setEditFormValues] = useState({
     title: "",
     content: "",
@@ -36,6 +38,28 @@ export default function CardContainer({
   });
 
   const [editListing, setEditListing] = useState(false);
+
+  function addToFavorites(listing) {
+    fetch("/api/add_favorite", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        listing_id: listing.id,
+      }),
+    })
+      .then((r) => r.json())
+      .then((reply) => console.log(reply));
+  }
+
+  function handleClick(selectedListing) {
+    setShowListing({
+      show: true,
+      listing: selectedListing,
+    });
+  }
 
   function handleImageChange(e) {
     const file = e.target.files[0];
@@ -296,6 +320,12 @@ export default function CardContainer({
                 onClick={(e) => setShowListing({ show: false, listing: null })}
               >
                 Close
+              </button>
+              <button
+                onClick={(e) => addToFavorites(showListing.listing)}
+                className="bg-red-400 p-1 ml-2 text-white rounded-md"
+              >
+                Favorite
               </button>
               {showListing.listing.user_id === user?.id && (
                 <div>

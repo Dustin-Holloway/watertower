@@ -2,7 +2,7 @@
 import { PaperClipIcon } from "@heroicons/react/20/solid";
 import { useContext } from "react";
 import { appContext } from "./AppContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useEffect } from "next/navigation";
 
 export default function Profile() {
   const router = useRouter();
