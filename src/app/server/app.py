@@ -509,11 +509,14 @@ class Listings(Resource):
         title = request.form.get("title")
         content = request.form.get("content")
         user_id = session.get("user_id")
+        type = request.form.get("type")
 
         try:
             image_file = request.files.get("image")
 
-            new_listing = Listing(title=title, content=content, user_id=user_id)
+            new_listing = Listing(
+                title=title, content=content, user_id=user_id, type=type
+            )
             db.session.add(new_listing)
             # ipdb.set_trace()
 
@@ -572,6 +575,27 @@ class DocumentsById(Resource):
                 mimetype="application/octet-stream",
             )
         return make_response({"error": "document not found"}, 404)
+
+
+class Favorites(Resource):
+    def post(self):
+        request_json = request.get_json()
+        # ipdb.set_trace()
+        try:
+            new_favorite = Favorite(
+                user_id=request_json.get("user_id"),
+                listing_id=request_json.get("listing_id"),
+            )
+
+            db.session.add(new_favorite)
+            db.session.commit()
+
+            return make_response(
+                jsonify(new_favorite.to_dict(only=("user_id", "listing_id"))), 201
+            )
+
+        except Exception:
+            return make_response(jsonify({"error": "not Good"}), 400)
 
 
 api.add_resource(Logout, "/api/logout")

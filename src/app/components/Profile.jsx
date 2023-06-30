@@ -14,7 +14,7 @@ export default function Profile() {
       <div className="border flex-1 bg-gray-100 text-right px-25">
         <h3 className="p-5 bg-gray-800">
           <button
-            className="text-white p-1 bg-gray-500 rounded-md"
+            className="text-white p-1"
             onClick={(e) => router.push("/dashboard")}
           >
             Return

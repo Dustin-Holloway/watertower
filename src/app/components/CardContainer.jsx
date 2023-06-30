@@ -19,6 +19,7 @@ export default function CardContainer({
   sortListings,
 }) {
   const { user } = useContext(appContext);
+  console.log(user);
   const [showListing, setShowListing] = useState({
     show: false,
     listing: null,
@@ -107,6 +108,21 @@ export default function CardContainer({
     });
   }
 
+  function addToFavorites(listing) {
+    fetch("/api/add_favorite", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        listing_id: listing.id,
+      }),
+    })
+      .then((r) => r.json())
+      .then((reply) => console.log(reply));
+  }
+
   function handleSubmitEdit(e) {
     e.preventDefault();
 
@@ -151,6 +167,7 @@ export default function CardContainer({
     })
       .then((r) => r.json())
       .then((reply) => console.log(reply));
+    setListingReply({ content: "" });
   }
 
   function handleClick(selectedListing) {

@@ -25,7 +25,7 @@ class User(db.Model, SerializerMixin):
     comments = db.relationship("Comment", back_populates="user")
     favorites = db.relationship("Favorite", back_populates="user")
 
-    favorited_listings = association_proxy("favorites", "listing")
+    # favorited_listings = association_proxy("favorites", "listing")
     messages = db.relationship("Message", back_populates="user")
 
     serialize_rules = (
@@ -57,6 +57,13 @@ class User(db.Model, SerializerMixin):
         return bcrypt.check_password_hash(self._password_hash, password.encode("utf-8"))
 
 
+# user_favorite_association = db.Table(
+#     "user_favorite_association",
+#     db.Column("user_id", db.Integer, db.ForeignKey("users.id")),
+#     db.Column("listing_id", db.Integer, db.ForeignKey("listings.id")),
+# )
+
+
 class Listing(db.Model, SerializerMixin):
     __tablename__ = "listings"
 
@@ -71,10 +78,13 @@ class Listing(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, ForeignKey("users.id"))
     user = db.relationship("User", back_populates="listings")
     comments = db.relationship("Comment", back_populates="listing")
+    # favorites = db.relationship(
+    #     "Favorite", secondary=user_favorite_association, back_populates="listings"
+    # )
 
     serialize_rules = (
         # "-user",
-        "-comments",
+        # "-comments",
     )
 
 
@@ -91,7 +101,6 @@ class Comment(db.Model, SerializerMixin):
 
     user = db.relationship("User", back_populates="comments")
     listing = db.relationship("Listing", back_populates="comments")
-    favorite = db.relationship("Favorite", back_populates="comment")
 
     serialize_rules = ("-user", "-listings")
 
@@ -104,7 +113,7 @@ class Favorite(db.Model, SerializerMixin):
     comment_id = db.Column(db.Integer, ForeignKey("comments.id"))
 
     user = db.relationship("User", back_populates="favorites")
-    comment = db.relationship("Comment", back_populates="favorite")
+    # listing = db.relationship("Listing", back_populates="favorites")
 
 
 class Message(db.Model, SerializerMixin):
