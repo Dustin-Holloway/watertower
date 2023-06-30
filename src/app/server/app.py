@@ -287,6 +287,27 @@ class Messages(Resource):
             return make_response(jsonify({}), 400)
 
 
+class Favorites(Resource):
+    def post(self):
+        request_json = request.get_json()
+        # ipdb.set_trace()
+        try:
+            new_favorite = Favorite(
+                user_id=request_json.get("user_id"),
+                listing_id=request_json.get("listing_id"),
+            )
+
+            db.session.add(new_favorite)
+            db.session.commit()
+
+            return make_response(
+                jsonify(new_favorite.to_dict(only=("user_id", "listing_id"))), 201
+            )
+
+        except Exception:
+            return make_response(jsonify({"error": "not Good"}), 400)
+
+
 class UserComments(Resource):
     def get(self):
         new_listings = Comment.query.all()

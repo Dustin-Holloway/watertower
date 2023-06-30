@@ -89,15 +89,7 @@ export default function Dashboard({
   }
 
   const sortListings = (data) => {
-    const sortedListings = data.sort((a, b) => {
-      if (a.created_at > b.created_at) {
-        return -1; // a should come before b
-      } else if (a.created_by > b.created_by) {
-        return 1; // a should come after b
-      } else {
-        return 0; // a and b have the same created_by, maintain their order
-      }
-    });
+    const sortedListings = [data, ...listings]; // Prepend new listing to the existing listings
     setListings(sortedListings);
   };
 

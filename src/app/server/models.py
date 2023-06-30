@@ -20,7 +20,6 @@ class User(db.Model, SerializerMixin):
     name = db.Column(db.String)
     image = db.Column(db.String)
     unit = db.Column(db.Integer)
-    is_admin = db.Column(db.Boolean, default=False)
 
     listings = db.relationship("Listing", back_populates="user")
     comments = db.relationship("Comment", back_populates="user")
@@ -71,7 +70,7 @@ class Listing(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
-    image = db.Column(db.String(255))
+    image = db.Column(db.String)
     title = db.Column(db.String)
     content = db.Column(db.String)
     type = db.Column(db.String)
@@ -88,21 +87,6 @@ class Listing(db.Model, SerializerMixin):
         # "-comments",
     )
 
-    def save_image(self, uploaded_file):
-        # Generate a secure filename
-        filename = secure_filename(uploaded_file.filename)
-
-        self.image = filename
-
-        # Create the file path where the image will be stored
-        file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
-
-        # Save the image to the file system
-        uploaded_file.save(file_path)
-
-        # Set the image attribute to the file path
-        # self.image = file_path
-
 
 class Comment(db.Model, SerializerMixin):
     __tablename__ = "comments"
@@ -118,7 +102,7 @@ class Comment(db.Model, SerializerMixin):
     user = db.relationship("User", back_populates="comments")
     listing = db.relationship("Listing", back_populates="comments")
 
-    serialize_rules = ("-user", "-listing", "-favorite")
+    serialize_rules = ("-user", "-listings")
 
 
 class Favorite(db.Model, SerializerMixin):
@@ -126,7 +110,7 @@ class Favorite(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey("users.id"))
-    listing_id = db.Column(db.Integer, ForeignKey("listings.id"))
+    comment_id = db.Column(db.Integer, ForeignKey("comments.id"))
 
     user = db.relationship("User", back_populates="favorites")
     # listing = db.relationship("Listing", back_populates="favorites")
@@ -145,7 +129,7 @@ class Message(db.Model, SerializerMixin):
     user = db.relationship("User", back_populates="messages")
     replies = db.relationship("MessageReply", back_populates="message")
 
-    # serialize_rules = "user"
+    # serialize_rules = ("user")
 
 
 class ListingReply(db.Model, SerializerMixin):
@@ -160,8 +144,6 @@ class ListingReply(db.Model, SerializerMixin):
 
     user = db.relationship("User")
     listing = db.relationship("Listing")
-
-    # serialize_rules = ("user")
 
 
 class MessageReply(db.Model, SerializerMixin):

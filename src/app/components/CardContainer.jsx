@@ -28,6 +28,8 @@ export default function CardContainer({
     content: "",
   });
 
+  const [favorites, setFavorites] = useState([]);
+
   const [editFromValues, setEditFormValues] = useState({
     title: "",
     content: "",
@@ -37,6 +39,28 @@ export default function CardContainer({
   });
 
   const [editListing, setEditListing] = useState(false);
+
+  function addToFavorites(listing) {
+    fetch("/api/add_favorite", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        listing_id: listing.id,
+      }),
+    })
+      .then((r) => r.json())
+      .then((reply) => console.log(reply));
+  }
+
+  function handleClick(selectedListing) {
+    setShowListing({
+      show: true,
+      listing: selectedListing,
+    });
+  }
 
   function handleImageChange(e) {
     const file = e.target.files[0];
