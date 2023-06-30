@@ -150,7 +150,7 @@ class MessageReply(db.Model, SerializerMixin):
     user = db.relationship("User")
     message = db.relationship("Message")
 
-    serialize_rules = ("-message","-message_id", "-user_id")
+    serialize_rules = ("-message", "-message_id", "-user_id")
 
 
 class Notification(db.Model, SerializerMixin):
@@ -179,17 +179,16 @@ class Document(db.Model, SerializerMixin):
 
     data = db.Column(db.LargeBinary)  # Assuming you want to store the file data
 
-
     def save_pdf(self, uploaded_file):
         # Generate a secure filename
         filename = secure_filename(uploaded_file.filename)
-        
+
         # Create the file path where the file will be stored
-        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-        
+        file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+
         # Save the file to the file system
         uploaded_file.save(file_path)
-        
+
         # Set the model attributes
         self.filename = filename
         self.file_path = file_path

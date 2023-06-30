@@ -23,6 +23,8 @@ export default function MessageBoard() {
       message_id: clickedMessageId,
     };
 
+    console.log(replyObj);
+
     fetch("api/reply", {
       method: "POST",
       headers: {
@@ -53,12 +55,25 @@ export default function MessageBoard() {
     fetchMessages();
   }, []);
 
+  const sortMessages = (data) => {
+    const sortedMessages = data.sort((a, b) => {
+      if (a.created_at > b.created_at) {
+        return -1; // b should come before a
+      } else if (a.created_at < b.created_at) {
+        return 1; // a should come after b
+      } else {
+        return 0; // a and b have the same created_at, maintain their order
+      }
+    });
+    setMessages((prevMessages) => [...prevMessages, ...data]);
+  };
+
   const fetchMessages = () => {
     fetch(`/api/messages?page=${page}`)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
-        setMessages((prevMessages) => [...prevMessages, ...data]);
+        sortMessages(data);
         setPage((prevPage) => prevPage + 1);
         setHasMore(data.length > 0);
       })
@@ -77,7 +92,6 @@ export default function MessageBoard() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setMessages((prevMessages) => [data, ...prevMessages]);
         setNewMessage({ content: "" });
       })
@@ -106,12 +120,12 @@ export default function MessageBoard() {
                   [e.target.name]: e.target.value,
                 });
               }}
-              className="justify-center w-200 flex-1 mx-5 border bg-white py-1.5 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+              className="justify-center w-200 flex-1 mx-5 border rounded-md bg-white py-1.5 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
               placeholder="When did the trash get picked up?"
             />
             <button
               onClick={handlePost}
-              className="justify-center  w-20 rounded-md p-1 border text-white bg-blue-500"
+              className="justify-center  w-20 rounded-md  border text-white bg-blue-500"
             >
               Post
             </button>
@@ -132,7 +146,10 @@ export default function MessageBoard() {
           >
             <dl className="py-10 px-5 bg-white rounded-md grid m-auto max-w-xl grid-cols-1 gap-x-5 gap-y-10 lg:max-w-85 lg:gap-y-10">
               {messages.map((feature) => (
-                <div key={feature.id} className="relative flex-1 p-5 bg">
+                <div
+                  key={feature.id}
+                  className="relative border flex-1 p-5 bg-gray-100"
+                >
                   <div className="flex  capitalize">
                     <p className="text-sm-b leading-7 font-normal text-gray-500">
                       {feature.user?.name}
@@ -152,7 +169,7 @@ export default function MessageBoard() {
                   </dd>
                   <div className="flex flex-wrap text-sm">
                     <div className="grid-col ml-auto">
-                      {feature.replies.map((item) => (
+                      {feature.replies?.map((item) => (
                         <div key={item.id}>
                           <p className="display-inline-block text-black text-right rounded-lg mt-3">
                             {item.user?.name}

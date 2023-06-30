@@ -2,6 +2,7 @@
 import React from "react";
 import { useContext } from "react";
 import { appContext } from "./AppContext";
+import { CustomPlaceholder } from "react-placeholder-image";
 
 export default function Card({
   listing,
@@ -10,18 +11,28 @@ export default function Card({
   handleClick,
 }) {
   const { user } = useContext(appContext);
-  console.log(listing);
+
+  const imageUrl = `./${listing.image}`;
 
   return (
     <div
       className="max-w-sm w-full rounded overflow-hidden shadow-lg"
       onClick={() => handleClick(listing)}
     >
-      <img
-        className="w-full h-32 object-cover"
-        src={listing.image}
-        alt={listing.title}
-      />
+      {listing.image ? (
+        <img
+          className="w-full h-32 object-cover"
+          src={imageUrl}
+          alt={listing.title}
+        />
+      ) : (
+        <CustomPlaceholder
+          className="flex center  w-full h-32 object-cover"
+          width={200}
+          height={32}
+        />
+      )}
+
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">{listing.title}</div>
         <p className="text-gray-700 text-base">{listing.content}</p>

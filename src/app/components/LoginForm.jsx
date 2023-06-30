@@ -16,6 +16,8 @@ const schema = yup.object({
 export default function LoginForm() {
   const { setUser } = useContext(appContext);
 
+  const [loginError, setLoginError] = useState(null);
+
   const router = useRouter();
 
   const {
@@ -31,18 +33,29 @@ export default function LoginForm() {
     },
   });
 
-  const submitData = (form) => {
-    fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    })
-      .then((res) => res.json())
-      .then((userData) => setUser(userData));
+  const submitData = async (form) => {
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
-    router.push("/dashboard");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error);
+      }
+
+      const userData = await response.json();
+      console.log(userData);
+      setUser(userData);
+
+      router.push("/dashboard");
+    } catch (error) {
+      setLoginError(error.message);
+    }
   };
 
   return (
@@ -62,6 +75,10 @@ export default function LoginForm() {
           {errors.email && (
             <p className="text-red-600 text-xs mt-2">{errors.email.message}</p>
           )}
+          {loginError && (
+            <p className="text-red-600 text-xs mt-2">{loginError}</p>
+          )}
+
           <input
             type="password"
             name="password"
@@ -74,6 +91,9 @@ export default function LoginForm() {
               {errors.password.message}
             </p>
           )}
+          {/* {loginError && (
+            <p className="text-red-600 text-xs mt-2">{loginError}</p>
+          )} */}
 
           <button className="bg-blue-500 text-white font-bold py-2 px-4 rounded border block mx-auto w-full">
             Login

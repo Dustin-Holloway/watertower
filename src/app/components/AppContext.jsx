@@ -18,8 +18,14 @@ export function AppContextProvider({ children }) {
           const user = await response.json();
           setUser(user);
           setIsAuthenticated(true);
-        } else if (response.status === 401) {
-          router.push("/login");
+        } else {
+          // Check if the current route is the dashboard page
+          if (router.pathname === "/dashboard") {
+            // If user is not authenticated, redirect to the registration page
+            if (response.status === 401) {
+              router.push("/registration");
+            }
+          }
         }
       } catch (error) {
         console.error("Error checking user session:", error);
