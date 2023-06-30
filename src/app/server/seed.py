@@ -16,7 +16,7 @@ fake = Faker()
 # if __name__ == "__main__":
 
 
-    # Create seed data
+# Create seed data
 with app.app_context():
     print("Starting seed...")
 
@@ -26,10 +26,8 @@ with app.app_context():
 
     Document.query.delete()
     for _ in range(8):
-        doc = Document(
-            filename=fake.file_name(),
-            title=fake.catch_phrase())
-        
+        doc = Document(filename=fake.file_name(), title=fake.catch_phrase())
+
         db.session.add(doc)
     db.session.commit()
 
@@ -52,7 +50,7 @@ with app.app_context():
     users = User.query.all()
     for _ in range(10):
         listing = Listing(
-            image=fake.image_url(),
+            # image=fake.image_url(),
             title=fake.sentence(),
             content=fake.paragraph(),
             user=fake.random_element(users),
@@ -66,9 +64,7 @@ with app.app_context():
     messages = Message.query.all()
     for _ in range(20):
         message = Message(
-
             content=fake.sentence(),
-
         )
         db.session.add(message)
 

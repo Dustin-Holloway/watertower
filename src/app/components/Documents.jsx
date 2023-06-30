@@ -4,12 +4,12 @@ import { Card, Typography, Modal } from "@material-tailwind/react";
 import PDFViewer from "./PdfViewer";
 import { useState } from "react";
 
-const TABLE_HEAD = ["Name", "Job", "Employed", ""];
+const TABLE_HEAD = ["Document", "Description", "Created on", ""];
 
 const TABLE_ROWS = [
   {
     name: (
-      <a href="pdf/19.Machinery's handbook.pdf" download>
+      <a href="./pdf/19.Machinery_handbook.pdf" download>
         Machinery Handbook.pdf
       </a>
     ),
@@ -51,7 +51,7 @@ export default function DocsTable() {
   };
 
   return (
-    <Card className="overflow-scroll h-full w-full">
+    <Card className="mx-auto h-full w-3/4">
       <table className="w-full min-w-max table-auto text-left">
         <thead>
           <tr>
@@ -115,7 +115,7 @@ export default function DocsTable() {
                     className="font-medium"
                     onClick={() => setPdfViewerOpen(true)}
                   >
-                    Edit
+                    View
                   </Typography>
                 </td>
               </tr>
@@ -136,7 +136,7 @@ export default function DocsTable() {
                 Close
               </button>
             </div>
-            <PDFViewer url="/pdf/19.Machinery's handbook.pdf" />
+            <PDFViewer url="./pdf/19.Machinery_handbook.pdf" />
           </div>
         </div>
       )}

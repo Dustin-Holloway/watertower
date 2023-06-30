@@ -17,7 +17,7 @@ import os
 app = Flask(__name__, template_folder="templates")
 app.secret_key = b"Y\xf1Xz\x00\xad|eQ\x80t \xca\x1a\x10K"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
-app.config['UPLOAD_FOLDER'] = './uploads'  
+app.config["UPLOAD_FOLDER"] = "./../../../public"
 # app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DB_URL')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.json.compact = False

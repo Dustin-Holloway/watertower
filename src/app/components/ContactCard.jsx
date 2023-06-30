@@ -2,7 +2,7 @@ import React from "react";
 
 export default function ContactCard() {
   return (
-    <div className="card w-1/4 bg-base-100 shadow-xl">
+    <div className="card w-full bg-base-100 shadow-xl">
       <div className="card-body">
         <h2 className="card-title">Shoes!</h2>
         <p>If a dog chews shoes whose shoes does he choose?</p>
